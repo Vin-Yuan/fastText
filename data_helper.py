@@ -98,14 +98,20 @@ def process_data(data, labels, window):
             count = count + 1
     return np.array(w_data), np.array(label)
 
-def generate_batch(data, labels, batch_size):
-    data_len = len(data)
-    iter_step = data_len / batch_size
-    last = 0 
-    for i in range(iter_step):
-        yield data[i:i+batch_size], labels[i:i+batch_size]
-        last = i
-    yield data[i:], labels[i:]
+def generate_batch(data, labels, batch_size, epochs_num):
+    for epoch in range(epochs_num):
+        data_len = len(data)
+        iter_step = data_len / batch_size
+        last = 0 
+        for i in range(iter_step):
+            last = i
+            begin = i * batch_size
+            end = (i + 1) * batch_size
+            yield data[begin : end], labels[begin : end]
+        last = last + 1
+        begin = last * batch_size
+        end = (last + 1) * batch_size
+        yield data[begin:], labels[begin:]
 
 # may be for half load condition
 '''

@@ -117,12 +117,23 @@ with tf.Graph().as_default():
 
     # Generate batches
     text, labels = data_helper.load_data_and_labels('./data')
+    '''
     x_train, x_dev = text[:-1000], text[-1000:]
     y_train, y_dev = labels[:-1000], labels[-1000:]
+    '''
     data, count, dictionary, reverse_dictionary = data_helper.build_dataset(text)
+    w_data, w_labels = data_helper.process_data(data, labels, window_size)
+    np.random.seed(10)
+    shuffle_indices = np.random.permutation(np.arange(w_data.shape[0]))
+    x = w_data[shuffle_indices]
+    y = w_labels[shuffle_indices]
+    boundery = 4000
+    x_train, x_dev = x[:-boundery], x[-boundery:]
+    y_train, y_dev = y[:-boundery], y[-boundery:]
     # batches = data_helper.generate_batch(data, labels, batch_size, window_size)
     # Training loop. For each batch...
-    for x_batch, y_batch in data_helper.generate_batch(data, labels, batch_size, window_size):
+    epochs_num = 10
+    for x_batch, y_batch in data_helper.generate_batch(x_train, y_train, batch_size, epochs_num):
         train_step(x_batch, y_batch)
         current_step = tf.train.global_step(sess, global_step)
         if current_step % FLAGS.evaluate_every == 0:
